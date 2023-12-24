@@ -8,14 +8,14 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import static com.sclab.boot.paymentwalletapp.entity.EntityConstant.preventSqlInjectionMsg;
+
 @Entity
 @Table(name = "wallet_user")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-    private static final String preventSqlInjectionMsg = "Must not contain single quotes, double quotes, or backslashes " +
-            "to prevent possible sql injection";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,6 +14,7 @@ public class UserService {
     UserRepository userRepository;
 
     public User create(User user) {
+        user.setId(null);
         return userRepository.save(user);
     }
 

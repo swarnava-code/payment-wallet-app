@@ -4,8 +4,10 @@ import com.sclab.boot.paymentwalletapp.util.CustomResponseEntity;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,19 +22,46 @@ public class GlobalAdviser {
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException cve) {
-        Set<String> victimFields = cve.getConstraintViolations().stream()
-                .map(v->v.getPropertyPath().toString()).collect(Collectors.toSet());
-        List<String> listOfConstraintViolation = cve.getConstraintViolations()
+    public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException
+                                                                        constraintViolationException) {
+        Set<String> victimFields = constraintViolationException.getConstraintViolations().stream()
+                .map(v -> v.getPropertyPath().toString()).collect(Collectors.toSet());
+        List<String> listOfConstraintViolation = constraintViolationException.getConstraintViolations()
                 .stream()
                 .map(v -> String.format("%s | %s", v.getPropertyPath(), v.getMessage()))
                 .collect(Collectors.toList());
-        logger.error(cve.getConstraintViolations().toString());
+        logger.error(constraintViolationException.getConstraintViolations().toString());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(CustomResponseEntity.keyValuePairsToMap(
-                        "message", "Validation Failed - constraintViolationException",
+                        "errorMessage", "Validation Failed - constraintViolationException",
                         "violations", listOfConstraintViolation,
-                        "victimFields", victimFields
+                        "victimFields", victimFields,
+                        "exception", constraintViolationException.getClass()
+                ));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleInvalidJsonData(HttpMessageNotReadableException
+                                                                    httpMessageNotReadableException) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(CustomResponseEntity.keyValuePairsToMap(
+                        "error", "Data Parsing Failed - You passed invalid value",
+                        "exception", httpMessageNotReadableException.getClass(),
+                        "message", httpMessageNotReadableException.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleDataDuplication(DataIntegrityViolationException
+                                                                    dataIntegrityViolationException) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(CustomResponseEntity.keyValuePairsToMap(
+                        "error", "Data Duplication issue - Some field require unique value",
+                        "exception", dataIntegrityViolationException.getClass(),
+                        "message", "You try to insert duplicate data in this entry.",
+                        "details", dataIntegrityViolationException.getMessage()
                 ));
     }
 
