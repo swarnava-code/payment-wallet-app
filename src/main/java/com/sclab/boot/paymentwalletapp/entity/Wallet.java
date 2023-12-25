@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
-import static com.sclab.boot.paymentwalletapp.entity.EntityConstant.preventSqlInjectionMsg;
 
 @Entity
 @Table
@@ -28,12 +27,6 @@ public class Wallet {
     @NotNull
     @UuidGenerator
     private UUID id;
-
-    @Column(nullable = false, unique = true)
-    @NotNull
-    @NotBlank
-    @Pattern(regexp = "^[^'\"\\\\]+$", message = preventSqlInjectionMsg)
-    private String username;
 
     @Column(nullable = false)
     @NotNull
@@ -53,12 +46,16 @@ public class Wallet {
     @UpdateTimestamp
     private Instant updatedAt;
 
+    @OneToOne
+    @JoinColumn(name = "username", referencedColumnName = "username")
+    private User user;
+
     public Wallet setWalletOrDefault(Wallet newWallet) {
         if (newWallet == null) {
             return null;
         }
         this.id = Objects.requireNonNullElse(newWallet.getId(), this.id);
-        this.username = Objects.requireNonNullElse(newWallet.getUsername(), this.username);
+        this.user = Objects.requireNonNullElse(newWallet.getUser(), this.user);
         this.balance = Objects.requireNonNullElse(newWallet.getBalance(), this.balance);
         this.currencyCode = Objects.requireNonNullElse(newWallet.getCurrencyCode(), this.currencyCode);
         return this;

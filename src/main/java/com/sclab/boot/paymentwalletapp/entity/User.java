@@ -1,13 +1,13 @@
 package com.sclab.boot.paymentwalletapp.entity;
 
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sclab.boot.paymentwalletapp.enumeration.Authority;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import static com.sclab.boot.paymentwalletapp.entity.EntityConstant.preventSqlInjectionMsg;
 
 @Entity
@@ -31,6 +31,7 @@ public class User {
     @NotNull
     @NotBlank
     @Pattern(regexp = "^[^'\"\\\\]+$", message = preventSqlInjectionMsg)
+    @Column(unique = true)
     private String username;
 
     @Pattern(regexp = ".*[0-9].*", message = "Must contain at least one number")
@@ -75,6 +76,10 @@ public class User {
     @Temporal(TemporalType.TIMESTAMP)
     @UpdateTimestamp
     private Date updatedAt;
+
+    @OneToOne(mappedBy = "user")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Wallet wallet;
 
     @PostPersist
     private void setValuesCreationTime() {

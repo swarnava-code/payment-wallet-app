@@ -28,10 +28,10 @@ public class WalletController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping
-    public ResponseEntity<Wallet> createWallet(@RequestBody Wallet wallet) {
-        Wallet createdWallet = walletService.createWallet(wallet);
-        return new ResponseEntity<>(createdWallet, HttpStatus.CREATED);
+    @PostMapping("/{userId}")
+    public ResponseEntity<Wallet> createWallet(@PathVariable Long userId,
+                                               @RequestBody Wallet wallet) {
+        return walletService.createWallet(userId, wallet);
     }
 
     @PutMapping("/{id}")

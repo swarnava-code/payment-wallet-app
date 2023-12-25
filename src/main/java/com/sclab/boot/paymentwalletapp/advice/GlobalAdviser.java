@@ -58,9 +58,9 @@ public class GlobalAdviser {
                                                                     dataIntegrityViolationException) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(CustomResponseEntity.keyValuePairsToMap(
-                        "error", "Data Duplication issue - Some field require unique value",
+                        "error", "Data duplication/dependency issue",
                         "exception", dataIntegrityViolationException.getClass(),
-                        "message", "You try to insert duplicate data in this entry.",
+                        "message", "You try to perform wrong db operation",
                         "details", dataIntegrityViolationException.getMessage()
                 ));
     }
