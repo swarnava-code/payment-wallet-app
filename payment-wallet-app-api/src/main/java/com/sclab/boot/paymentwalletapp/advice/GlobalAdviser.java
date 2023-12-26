@@ -36,7 +36,7 @@ public class GlobalAdviser {
                         "errorMessage", "Validation Failed - constraintViolationException",
                         "violations", listOfConstraintViolation,
                         "victimFields", victimFields,
-                        "exception", constraintViolationException.getClass()
+                        "exceptionClass", constraintViolationException.getClass()
                 ));
     }
 
@@ -47,7 +47,7 @@ public class GlobalAdviser {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(CustomResponseEntity.keyValuePairsToMap(
                         "error", "Data Parsing Failed - You passed invalid value",
-                        "exception", httpMessageNotReadableException.getClass(),
+                        "exceptionClass", httpMessageNotReadableException.getClass(),
                         "message", httpMessageNotReadableException.getMessage()
                 ));
     }
@@ -59,7 +59,7 @@ public class GlobalAdviser {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(CustomResponseEntity.keyValuePairsToMap(
                         "error", "Data duplication/dependency issue",
-                        "exception", dataIntegrityViolationException.getClass(),
+                        "exceptionClass", dataIntegrityViolationException.getClass(),
                         "message", "You try to perform wrong db operation",
                         "details", dataIntegrityViolationException.getMessage()
                 ));
