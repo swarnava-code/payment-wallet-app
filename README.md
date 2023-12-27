@@ -12,5 +12,5 @@ Here is the relation diagram between both service:
 ```mermaid
 graph TD;
     exchange-rate-provider-->DB_Exchange_Rate;
-    DB_Exchange_Rate->payment-wallet-app-api;
+    DB_Exchange_Rate-->payment-wallet-app-api;
 ```
