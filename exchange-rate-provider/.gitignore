@@ -35,4 +35,3 @@ build/
 
 ### Hide Sensitive data
 /src/main/resources/application.properties
-src/main/resources/exchange-rate.json
