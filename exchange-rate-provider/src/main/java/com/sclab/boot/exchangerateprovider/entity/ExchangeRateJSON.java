@@ -1,23 +1,26 @@
 package com.sclab.boot.exchangerateprovider.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Base currency is USD = $1
- */
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class ExchangeRate {
+public class ExchangeRateJSON {
 
+    @JsonIgnore
     @Id
-    private String currencyCode;
+    private final Integer id = 1;
 
-    private Double currencyRate;
+    @Lob
+    private String jsonResponse;
+
+    private String source;
 
 }
