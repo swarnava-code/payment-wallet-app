@@ -8,7 +8,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import static com.sclab.boot.paymentwalletapp.entity.EntityConstant.preventSqlInjectionMsg;
+import static com.sclab.boot.paymentwalletapp.util.EntityConstant.preventSqlInjectionMsg;
 
 @Entity
 @Table(name = "wallet_user")
