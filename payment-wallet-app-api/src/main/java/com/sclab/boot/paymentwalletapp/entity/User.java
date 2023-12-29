@@ -62,7 +62,7 @@ public class User {
     private String phone;
 
     @NotNull
-    @Min(1)
+    @Min(18)
     @Max(value = 123, message = "122 years and 164 days is the longest documented and verified human lifespan")
     private byte age;
 
