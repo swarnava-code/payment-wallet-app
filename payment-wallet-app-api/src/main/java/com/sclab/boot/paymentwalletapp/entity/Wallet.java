@@ -1,5 +1,6 @@
 package com.sclab.boot.paymentwalletapp.entity;
 
+import com.sclab.boot.paymentwalletapp.advice.MinBalanceNotMetException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -34,9 +35,12 @@ public class Wallet {
     @NotNull
     private BigDecimal balance;
 
+    private int limitTransaction; // sender get warning if sender try to cross this value
+
     @Pattern(regexp = "^[A-Z]{3,4}$")
     @NotNull
     @NotBlank
+    @Pattern(regexp = "INR")
     private String currencyCode;
 
     @Column(updatable = false)
@@ -59,6 +63,18 @@ public class Wallet {
         this.balance = Objects.requireNonNullElse(newWallet.getBalance(), this.balance);
         this.currencyCode = Objects.requireNonNullElse(newWallet.getCurrencyCode(), this.currencyCode);
         return this;
+    }
+
+    /**
+     * It should be >= 100
+     */
+    @PostPersist
+    void checkMinimumBalanceInWallet() {
+        System.out.println("balance.intValue(): "+balance.intValue());
+        if (balance.intValue() < 100) {
+            System.out.println("balance.intValue(): "+balance.intValue());
+            throw new MinBalanceNotMetException("balance should be more than or equal to 100 in the time of wallet creation");
+        }
     }
 
 }

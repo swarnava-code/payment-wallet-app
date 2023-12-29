@@ -79,4 +79,18 @@ public class GlobalAdviser {
         );
     }
 
+    @ExceptionHandler(MinBalanceNotMetException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleException(MinBalanceNotMetException e) {
+        e.printStackTrace();
+        return ResponseEntity.badRequest().body(
+                CustomResponseEntity.keyValuePairsToMap(
+                        "exceptionClass", e.getClass(),
+                        "error", "MinBalanceNotMetCondition",
+                        "hint", "Pass valid integer value",
+                        "message", e.getMessage()
+                )
+        );
+    }
+
 }

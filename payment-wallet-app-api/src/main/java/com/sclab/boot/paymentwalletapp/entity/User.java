@@ -8,6 +8,8 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import static com.sclab.boot.paymentwalletapp.util.EntityConstant.phoneNumberErrMessage;
 import static com.sclab.boot.paymentwalletapp.util.EntityConstant.preventSqlInjectionMsg;
 
 @Entity
@@ -58,7 +60,8 @@ public class User {
     private String email;
 
     @NotNull
-    @Pattern(regexp = "^[0-9 +-]+$")
+    @Pattern(regexp = "^(\\+[0-9]{2})?[6-9]{1}[0-9]{9}$", message = phoneNumberErrMessage)
+    @Column(unique = true)
     private String phone;
 
     @NotNull
