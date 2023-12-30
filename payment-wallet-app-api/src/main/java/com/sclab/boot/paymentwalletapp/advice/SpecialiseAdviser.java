@@ -13,12 +13,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * It will handle known exception and provide response
+ */
 @RestControllerAdvice
-public class GlobalAdviser {
-    private static final Logger logger = LoggerFactory.getLogger(GlobalAdviser.class);
+public class SpecialiseAdviser {
+    private static final Logger logger = LoggerFactory.getLogger(SpecialiseAdviser.class);
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -88,6 +92,20 @@ public class GlobalAdviser {
                         "exceptionClass", e.getClass(),
                         "error", "MinBalanceNotMetCondition",
                         "hint", "Pass valid integer value",
+                        "message", e.getMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleException(NoSuchElementException e) {
+        e.printStackTrace();
+        return ResponseEntity.badRequest().body(
+                CustomResponseEntity.keyValuePairsToMap(
+                        "exceptionClass", e.getClass(),
+                        "error", "No Such Element Exist",
+                        "hint", "Data not exist",
                         "message", e.getMessage()
                 )
         );

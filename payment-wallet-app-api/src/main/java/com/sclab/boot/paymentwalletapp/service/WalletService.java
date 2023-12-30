@@ -1,12 +1,11 @@
 package com.sclab.boot.paymentwalletapp.service;
 
+import com.sclab.boot.paymentwalletapp.advice.BadRequestException;
+import com.sclab.boot.paymentwalletapp.advice.NotFoundException;
 import com.sclab.boot.paymentwalletapp.entity.Wallet;
 import com.sclab.boot.paymentwalletapp.repository.UserRepository;
 import com.sclab.boot.paymentwalletapp.repository.WalletRepository;
-import com.sclab.boot.paymentwalletapp.util.CustomResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -29,14 +28,18 @@ public class WalletService {
         return walletRepository.findById(id);
     }
 
-    public ResponseEntity<Wallet> createWallet(Long userId, Wallet wallet) {
+    public Wallet createWallet(Long userId, Wallet wallet) {
         var optUser = userRepository.findById(userId);
         if (optUser.isEmpty()) {
-            return CustomResponseEntity.NOT_FOUND("message", "user not found: "+userId);
+            throw new NotFoundException("user not found");
+        }
+        Wallet existingWallet = walletRepository.findByUsername(optUser.get().getUsername());
+        if (existingWallet != null) {
+            throw new BadRequestException("existing wallet found for same user");
         }
         wallet.setId(null);
         wallet.setUser(optUser.get());
-        return new ResponseEntity<>(walletRepository.save(wallet), HttpStatus.CREATED);
+        return walletRepository.save(wallet);
     }
 
     public Wallet updateWallet(UUID id, Wallet updatedWallet) {
@@ -49,7 +52,11 @@ public class WalletService {
     }
 
     public void deleteWallet(UUID id) {
-        walletRepository.deleteById(id);
+        var optWallet = walletRepository.findById(id);
+        if (optWallet.get().getBalance().intValue() != 0) {
+            throw new BadRequestException("wallet balance should be 0 to delete");
+        }
+         walletRepository.deleteById(id);;
     }
 
 }

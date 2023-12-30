@@ -16,7 +16,8 @@ import java.util.UUID;
 
 @Entity
 @Table
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -51,7 +52,7 @@ public class Wallet {
     private Instant updatedAt;
 
     @OneToOne
-    @JoinColumn(name = "username", referencedColumnName = "username")
+    @JoinColumn(name = "username", referencedColumnName = "username", unique = true)
     private User user;
 
     public Wallet setWalletOrDefault(Wallet newWallet) {

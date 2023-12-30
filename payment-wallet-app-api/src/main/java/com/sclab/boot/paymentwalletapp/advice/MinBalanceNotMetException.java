@@ -6,7 +6,4 @@ public class MinBalanceNotMetException extends RuntimeException {
         super(message);
     }
 
-    public MinBalanceNotMetException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

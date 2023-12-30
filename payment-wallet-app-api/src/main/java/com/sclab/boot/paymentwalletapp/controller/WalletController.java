@@ -31,7 +31,7 @@ public class WalletController {
     @PostMapping("/{userId}")
     public ResponseEntity<Wallet> createWallet(@PathVariable Long userId,
                                                @RequestBody Wallet wallet) {
-        return walletService.createWallet(userId, wallet);
+        return new ResponseEntity<>(walletService.createWallet(userId, wallet), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
@@ -44,7 +44,7 @@ public class WalletController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWallet(@PathVariable UUID id) {
-        walletService.deleteWallet(id);
+         walletService.deleteWallet(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

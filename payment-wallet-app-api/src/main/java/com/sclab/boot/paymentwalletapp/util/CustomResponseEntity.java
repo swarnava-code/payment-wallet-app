@@ -13,6 +13,12 @@ public class CustomResponseEntity {
                 .body(mapToErrorResponse(keyValuePairs));
     }
 
+    public static ResponseEntity BAD_REQUEST(Object... keyValuePairs) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapToErrorResponse(keyValuePairs));
+    }
+
     public static ErrorResponse mapToErrorResponse(Object... keyValuePairs) {
         return new ErrorResponse(keyValuePairsToMap(keyValuePairs));
     }
