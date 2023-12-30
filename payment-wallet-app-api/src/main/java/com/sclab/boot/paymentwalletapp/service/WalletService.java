@@ -20,6 +20,9 @@ public class WalletService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
+
     public List<Wallet> getAllWallets() {
         return walletRepository.findAll();
     }
@@ -39,7 +42,10 @@ public class WalletService {
         }
         wallet.setId(null);
         wallet.setUser(optUser.get());
-        return walletRepository.save(wallet);
+        Wallet savedWallet = walletRepository.save(wallet);
+        kafkaProducerService
+                .sendOnboardingNotification(optUser.get().getName(), savedWallet.getStatus(), wallet.getId());
+        return savedWallet;
     }
 
     public Wallet updateWallet(UUID id, Wallet updatedWallet) {

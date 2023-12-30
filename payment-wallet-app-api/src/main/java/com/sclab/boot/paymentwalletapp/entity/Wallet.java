@@ -1,6 +1,7 @@
 package com.sclab.boot.paymentwalletapp.entity;
 
 import com.sclab.boot.paymentwalletapp.advice.MinBalanceNotMetException;
+import com.sclab.boot.paymentwalletapp.enumeration.WalletStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -36,6 +37,10 @@ public class Wallet {
     @NotNull
     private BigDecimal balance;
 
+    @NotNull
+    private WalletStatus status;
+
+    @NotNull
     private int limitTransaction; // sender get warning if sender try to cross this value
 
     @Pattern(regexp = "^[A-Z]{3,4}$")
