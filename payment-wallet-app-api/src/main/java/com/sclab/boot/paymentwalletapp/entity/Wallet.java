@@ -1,5 +1,6 @@
 package com.sclab.boot.paymentwalletapp.entity;
 
+import com.sclab.boot.paymentwalletapp.advice.InvalidDataException;
 import com.sclab.boot.paymentwalletapp.advice.MinBalanceNotMetException;
 import com.sclab.boot.paymentwalletapp.enumeration.WalletStatus;
 import jakarta.persistence.*;
@@ -38,10 +39,14 @@ public class Wallet {
     private BigDecimal balance;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private WalletStatus status;
 
     @NotNull
-    private int limitTransaction; // sender get warning if sender try to cross this value
+    private int limitPerTransaction; // sender get warning if sender try to cross this value
+
+    @NotNull
+    private int limitTotalAmountPerDay;
 
     @Pattern(regexp = "^[A-Z]{3,4}$")
     @NotNull
@@ -75,11 +80,22 @@ public class Wallet {
      * It should be >= 100
      */
     @PostPersist
-    void checkMinimumBalanceInWallet() {
-        System.out.println("balance.intValue(): "+balance.intValue());
+    void validateDataCreationTime() {
+        if (limitTotalAmountPerDay < limitPerTransaction) {
+            throw new InvalidDataException("Value of 'limitTotalAmountPerDay' should be more than or equal to " +
+                    "value of 'limitPerTransaction'");
+        }
         if (balance.intValue() < 100) {
-            System.out.println("balance.intValue(): "+balance.intValue());
-            throw new MinBalanceNotMetException("balance should be more than or equal to 100 in the time of wallet creation");
+            throw new MinBalanceNotMetException("balance should be more than or equal to 100 in the time of wallet " +
+                    "creation");
+        }
+    }
+
+    @PreUpdate
+    void validateDataOnUpdateTime() {
+        if (limitTotalAmountPerDay < limitPerTransaction) {
+            throw new InvalidDataException("Value of 'limitTotalAmountPerDay' should be more than or equal to " +
+                    "value of 'limitPerTransaction'");
         }
     }
 

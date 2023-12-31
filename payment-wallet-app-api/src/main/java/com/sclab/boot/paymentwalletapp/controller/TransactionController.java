@@ -28,7 +28,8 @@ public class TransactionController {
                     "errorMessage", String.format("both id is equal [%s]", senderId)
             ));
         }
-        return transactionService.createTransaction(senderId, receiverId, amount, notes);
+        Transaction transaction = transactionService.createTransaction(senderId, receiverId, amount, notes);
+        return new ResponseEntity<>(transaction, HttpStatus.CREATED);
     }
 
     @GetMapping

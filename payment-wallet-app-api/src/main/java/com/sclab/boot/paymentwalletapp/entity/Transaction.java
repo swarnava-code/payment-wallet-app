@@ -1,11 +1,11 @@
 package com.sclab.boot.paymentwalletapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sclab.boot.paymentwalletapp.enumeration.TransactionStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "payment_transaction")
+@Table(name = "wallet_transaction")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,17 +27,22 @@ public class Transaction {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "senderId", referencedColumnName = "id", unique = true)
+    @JoinColumn(name = "senderId", referencedColumnName = "id")
     private Wallet sender;
 
     @ManyToOne
-    @JoinColumn(name = "receiverId", referencedColumnName = "id", unique = true)
+    @JoinColumn(name = "receiverId", referencedColumnName = "id")
     private Wallet receiver;
 
     @DecimalMin(value = "0.00001", inclusive = false)
     private BigDecimal amount;
 
     private String notes;
+
+    @NotNull
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Enumerated(EnumType.STRING)
+    private TransactionStatus status;
 
     @CreationTimestamp
     private LocalDateTime createdOn;

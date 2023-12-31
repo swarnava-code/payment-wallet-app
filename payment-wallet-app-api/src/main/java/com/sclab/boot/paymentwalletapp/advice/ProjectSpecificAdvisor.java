@@ -36,4 +36,14 @@ public class ProjectSpecificAdvisor {
         );
     }
 
+    @ExceptionHandler(InvalidDataException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleException(InvalidDataException e) {
+        return CustomResponseEntity.NOT_FOUND(
+                "exceptionClass", e.getClass(),
+                "error", "Invalid Value",
+                "message", e.getMessage()
+        );
+    }
+
 }
