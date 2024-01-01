@@ -48,4 +48,9 @@ public class TransactionController {
         }
     }
 
+    @GetMapping("/sender/{senderId}")
+    public List<Transaction> getAllTransactionBySenderId(@PathVariable UUID senderId) {
+        return transactionService.getAllTransactionBySenderId(senderId);
+    }
+
 }

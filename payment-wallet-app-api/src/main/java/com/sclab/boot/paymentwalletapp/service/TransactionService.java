@@ -90,4 +90,8 @@ public class TransactionService {
         return transactionRepository.findById(transactionId).orElse(null);
     }
 
+    public List<Transaction> getAllTransactionBySenderId(UUID senderId) {
+        return transactionRepository.findTransactionBySenderId(senderId);
+    }
+
 }
