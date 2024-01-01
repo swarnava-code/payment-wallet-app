@@ -23,6 +23,9 @@ public class TransactionService {
     @Autowired
     private WalletRepository walletRepository;
 
+    @Autowired
+    private KafkaProducerService kafkaProducerService;
+
     @Transactional
     public Transaction createTransaction(UUID senderId, UUID receiverId, BigDecimal amount, String notes) {
         Wallet sender = walletRepository.findById(senderId).orElse(null);
@@ -74,6 +77,8 @@ public class TransactionService {
         // Update receiver's balance
         receiver.setBalance(receiver.getBalance().add(amount));
         walletRepository.save(receiver);
+
+        kafkaProducerService.sendTransactionNotification(transaction);
         return transactionRepository.save(transaction);
     }
 
