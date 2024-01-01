@@ -60,18 +60,14 @@ public class TransactionService {
         if (limitTotalAmountPerDay < (sumOfAllTransaction + amount.intValue())) {
             throw new TransactionFailedException(
                     String.format("transaction failed: You shouldn't cross the value of 'limitTotalAmountPerDay'" +
-                            " \nYou can pay maximum %s %s for today till 11:59 PM",
-                    (limitTotalAmountPerDay - sumOfAllTransaction), sender.getCurrencyCode()),
+                                    " \nYou can pay maximum %s %s for today till 11:59 PM",
+                            (limitTotalAmountPerDay - sumOfAllTransaction), sender.getCurrencyCode()),
                     transactionRepository.save(transaction));
         }
+        kafkaProducerService.sendTransactionPendingNotification(transaction);
         transaction.setStatus(TransactionStatus.SUCCESS);
         Transaction savedTransaction = saveRequiredDataIntoAllDb(sender, receiver, amount, transaction);
-        // send notification
-        try {
-            kafkaProducerService.sendTransactionNotification(transaction);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        kafkaProducerService.sendTransactionConfirmationNotification(transaction);
         return savedTransaction;
     }
 

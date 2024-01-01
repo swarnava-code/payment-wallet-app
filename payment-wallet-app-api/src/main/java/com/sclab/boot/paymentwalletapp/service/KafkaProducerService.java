@@ -24,12 +24,29 @@ public class KafkaProducerService {
         logger.info("onboarding message published to kafka");
     }
 
-    public void sendTransactionNotification(Transaction transaction) {
-        final String TOPIC_NAME = "OTP";
+    public void sendTransactionConfirmationNotification(Transaction transaction) {
+        final String TOPIC_NAME = "TRANSACT_SUCCESS";
         String message = String.format("You paid %s to %s",
                 transaction.getAmount(), transaction.getReceiver().getUser().getName());
-        kafkaTemplate.send(TOPIC_NAME, transaction.getSender().getId().toString(), message);
-        logger.info("Kafka message published: one entity paid another entity");
+        try {
+            kafkaTemplate.send(TOPIC_NAME, transaction.getSender().getId().toString(), message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        logger.info("Kafka: transaction data inserted and published");
+    }
+
+    public void sendTransactionPendingNotification(Transaction transaction) {
+        final String TOPIC_NAME = "OTP";
+        String message = String.format("DB transaction process has been started for you payment request." +
+                        " You want to pay %s to %s",
+                transaction.getAmount(), transaction.getReceiver().getUser().getName());
+        try {
+            kafkaTemplate.send(TOPIC_NAME, transaction.getSender().getId().toString(), message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        logger.info("Kafka: payment request has been started");
     }
 
 }
