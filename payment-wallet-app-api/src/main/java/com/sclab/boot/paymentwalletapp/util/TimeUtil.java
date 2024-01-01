@@ -65,4 +65,12 @@ public class TimeUtil {
         return sqlStartDate;
     }
 
+    public static void sleep(int millisecond){
+        try {
+            Thread.sleep(millisecond);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

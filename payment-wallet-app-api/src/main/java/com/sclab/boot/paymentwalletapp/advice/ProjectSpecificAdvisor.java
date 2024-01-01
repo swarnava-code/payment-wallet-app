@@ -46,4 +46,15 @@ public class ProjectSpecificAdvisor {
         );
     }
 
+    @ExceptionHandler(TransactionFailedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleException(TransactionFailedException e) {
+        return CustomResponseEntity.BAD_REQUEST(
+                "exceptionClass", e.getClass(),
+                "error", "Transaction Failed",
+                "message", e.getMessage(),
+                "transaction", e.getTransaction()
+        );
+    }
+
 }

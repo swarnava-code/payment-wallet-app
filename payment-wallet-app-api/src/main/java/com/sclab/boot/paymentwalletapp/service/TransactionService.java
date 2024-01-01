@@ -1,6 +1,6 @@
 package com.sclab.boot.paymentwalletapp.service;
 
-import com.sclab.boot.paymentwalletapp.advice.BadRequestException;
+import com.sclab.boot.paymentwalletapp.advice.TransactionFailedException;
 import com.sclab.boot.paymentwalletapp.entity.Transaction;
 import com.sclab.boot.paymentwalletapp.entity.Wallet;
 import com.sclab.boot.paymentwalletapp.enumeration.TransactionStatus;
@@ -26,7 +26,6 @@ public class TransactionService {
     @Autowired
     private KafkaProducerService kafkaProducerService;
 
-    @Transactional
     public Transaction createTransaction(UUID senderId, UUID receiverId, BigDecimal amount, String notes) {
         Wallet sender = walletRepository.findById(senderId).orElse(null);
         Wallet receiver = walletRepository.findById(receiverId).orElse(null);
@@ -39,46 +38,53 @@ public class TransactionService {
                 .status(TransactionStatus.FAILURE)
                 .build();
         if (sender == null) {
-            throw new BadRequestException("transaction failed: sender not exist"
-                    + transactionRepository.save(transaction));
+            throw new TransactionFailedException("sender not exist", transactionRepository.save(transaction));
         }
         if (receiver == null) {
-            throw new BadRequestException("transaction failed: receiver not exist"
-                    + transactionRepository.save(transaction));
+            throw new TransactionFailedException("receiver not exist", transactionRepository.save(transaction));
         }
         if (sender.getBalance().compareTo(amount) <= 0) {
-            var t = transactionRepository.save(transaction);
-            throw new BadRequestException("transaction failed: sender have insufficient balance " + t);
+            throw new TransactionFailedException("sender have insufficient balance",
+                    transactionRepository.save(transaction));
         }
         if (sender.getLimitPerTransaction() < amount.intValue()) {
-            throw new BadRequestException("transaction failed: It shouldn't cross 'LimitPerTransaction' value"
-                    + transactionRepository.save(transaction));
+            throw new TransactionFailedException("It shouldn't cross 'LimitPerTransaction' value.",
+                    transactionRepository.save(transaction));
         }
-
         BigDecimal sumOfAllTransactionInLast24Hours =
-                transactionRepository.findSumOfAllTransactionInLast24Hours(senderId.toString(), TimeUtil.currentDate().toString());
-        int sumOfAllTransaction = (sumOfAllTransactionInLast24Hours == null) ? 0 : sumOfAllTransactionInLast24Hours.intValue();
-//        if (sumOfAllTransaction > sender.getLimitTotalAmountPerDay()) {
+                transactionRepository.findSumOfAllTransactionInLast24Hours(senderId.toString(),
+                        TimeUtil.currentDate().toString());
+        int sumOfAllTransaction = (sumOfAllTransactionInLast24Hours == null) ? 0
+                : sumOfAllTransactionInLast24Hours.intValue();
         int limitTotalAmountPerDay = sender.getLimitTotalAmountPerDay();
-        // 100 > 10
         if (limitTotalAmountPerDay < (sumOfAllTransaction + amount.intValue())) {
-            transactionRepository.save(transaction);
-            throw new BadRequestException(
+            throw new TransactionFailedException(
                     String.format("transaction failed: You shouldn't cross the value of 'limitTotalAmountPerDay'" +
-                                    " \nYou can pay maximum %s %s for today till 11:59 PM",
-                            (limitTotalAmountPerDay - sumOfAllTransaction), sender.getCurrencyCode())
-            );
+                            " \nYou can pay maximum %s %s for today till 11:59 PM",
+                    (limitTotalAmountPerDay - sumOfAllTransaction), sender.getCurrencyCode()),
+                    transactionRepository.save(transaction));
         }
-
         transaction.setStatus(TransactionStatus.SUCCESS);
-        // Update sender's balance
+        Transaction savedTransaction = saveRequiredDataIntoAllDb(sender, receiver, amount, transaction);
+        // send notification
+        try {
+            kafkaProducerService.sendTransactionNotification(transaction);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return savedTransaction;
+    }
+
+    @Transactional
+    private Transaction saveRequiredDataIntoAllDb(Wallet sender, Wallet receiver, BigDecimal amount,
+                                                  Transaction transaction) {
+        // Update sender's balance : Deduct money from Sender’s Wallet
         sender.setBalance(sender.getBalance().subtract(amount));
         walletRepository.save(sender);
-        // Update receiver's balance
+        // Update receiver's balance : Credit money to the Receiver's Wallet
         receiver.setBalance(receiver.getBalance().add(amount));
         walletRepository.save(receiver);
-
-        kafkaProducerService.sendTransactionNotification(transaction);
+        // Add Transaction data
         return transactionRepository.save(transaction);
     }
 
