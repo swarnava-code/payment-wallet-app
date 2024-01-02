@@ -11,6 +11,7 @@ server.port=8082
 - step-2: 
     Run [PaymentWalletAppApplication.java](src/main/java/com/sclab/boot/paymentwalletapp/PaymentWalletAppApplication.java)
 
-## Resources
+## References
 - [Hide password logic](https://projectlombok.org/features/GetterSetter#:~:text=In%20that%20case%2C%20it%27s%20as,Data%20annotation%20on%20a%20class.)
 - [regex tool](https://regexr.com)
+- [Security](https://www.javaguides.net/2023/04/spring-security-basic-authentication.html#google_vignette)
