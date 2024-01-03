@@ -26,10 +26,17 @@ public class KafkaProducerService {
 
     public void sendTransactionConfirmationNotification(Transaction transaction) {
         final String TOPIC_NAME = "TRANSACT_SUCCESS";
-        String message = String.format("You paid %s to %s",
+        String messageForSender = String.format("You paid %s to %s",
                 transaction.getAmount(), transaction.getReceiver().getUser().getName());
         try {
-            kafkaTemplate.send(TOPIC_NAME, transaction.getSender().getId().toString(), message);
+            kafkaTemplate.send(TOPIC_NAME, transaction.getSender().getId().toString(), messageForSender);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String messageForReceiver = String.format("You received %s from %s",
+                transaction.getAmount(), transaction.getSender().getUser().getName());
+        try {
+            kafkaTemplate.send(TOPIC_NAME, transaction.getReceiver().getId().toString(), messageForReceiver);
         } catch (Exception e) {
             e.printStackTrace();
         }
