@@ -9,7 +9,7 @@
 * Project Path: [exchange-rate-provider](exchange-rate-provider)
 
 
-### Here is the relation diagram between both service:
+### Data flow diagram through microservices:
 
 ```mermaid
 graph TD;
@@ -19,14 +19,16 @@ graph TD;
     
     MailSenderService[["mail-sender-service (HOLD)"]]
     Kafka[("Kafka")]
-    User[/"👤\n User"\]
+    Sender[/"👤\n Sender"\]
+    Receiver[/"👤\n Receiver"\]
 
     exchange-rate-provider--Update latest rate-->DB_Exchange_Rate;
     DB_Exchange_Rate--Get latest rate-->payment-wallet-app-api;
 
     payment-wallet-app-api--Publish notification-->Kafka
     Kafka--Subscribe notification-->MailSenderService
-    MailSenderService--Send notification email 📧-->User
+    MailSenderService--Send debit notification 📧-->Sender
+    MailSenderService--Send credit notification 📧-->Receiver
 ```
 
 ## References:
