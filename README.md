@@ -27,8 +27,8 @@ graph TD;
 
     payment-wallet-app-api--Publish notification-->Kafka
     Kafka--Subscribe notification-->MailSenderService
-    MailSenderService--Send debit notification 📧-->Sender
-    MailSenderService--Send credit notification 📧-->Receiver
+    MailSenderService--Send debit notification-->Sender
+    MailSenderService--Send credit notification-->Receiver
 ```
 
 ## References:
